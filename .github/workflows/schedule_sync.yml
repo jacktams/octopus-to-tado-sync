@@ -2,9 +2,9 @@ name: Run Tado-Octopus Script
 
 on:
   schedule:
-    # Runs every Wednesday at 12pm UTC
     - cron: '0 12 * * 3'
-
+  workflow_dispatch:
+  
 jobs:
   run_script:
     runs-on: ubuntu-latest

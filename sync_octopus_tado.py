@@ -43,10 +43,10 @@ def uploadAllTarrifs(api_key, tarrif, fullTarrif):
             meter_readings = response.json()
 
             print(meter_readings)
-
-            break
             
-            #for result in meter_readings['results']:
+            for result in meter_readings['results']:
+                print(result)
+                break
             #    value = result["value_inc_vat"] / 100
             #    valid_from = result["valid_from"][:-10]
             #    valid_to = result["valid_to"][:-10]

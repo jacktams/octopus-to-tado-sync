@@ -73,6 +73,8 @@ def parse_args():
         "--gas-serial-number", required=True, help="Gas meter serial number"
     )
     parser.add_argument("--octopus-api-key", required=True, help="Octopus API key")
+    parser.add_argument("--tarrif", required=True, help="tarrif details")
+    parser.add_argument("--fulltarrif", required=True, help="full tarrif details")
 
     return parser.parse_args()
 

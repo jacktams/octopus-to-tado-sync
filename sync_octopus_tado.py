@@ -31,6 +31,26 @@ def get_meter_reading_total_consumption(api_key, mprn, gas_serial_number):
     print(f"Total consumption is {total_consumption}")
     return total_consumption
 
+def uploadAllTarrifs(api_key, tarrif, fullTarrif):
+    url = f"https://api.octopus.energy/v1/products/{tarrif}/gas-tariffs/{fullTarrif}/standard-unit-rates/"
+
+    while url:
+        response = requests.get(
+                url , auth=HTTPBasicAuth(api_key, "")
+            )
+    
+        if response.status_code == 200:
+            meter_readings = response.json()
+            
+            for result in meter_readings['results']:
+                value = result["value_inc_vat"] / 100
+                valid_from = result["valid_from"][:-10]
+                valid_to = result["valid_to"][:-10]
+                
+                send_tarrif_to_tado(args.tado_email, args.tado_password, valid_from, valid_to, value)
+                
+                url = meter_readings.get("next", "")
+
 
 def send_reading_to_tado(username, password, reading):
     """
@@ -40,14 +60,10 @@ def send_reading_to_tado(username, password, reading):
     result = tado.set_eiq_meter_readings(reading=int(reading))
     print(result)
 
-def send_tarrif_to_tado(username, password, result):
+def send_tarrif_to_tado(username, password, valid_from, valid_to, value):
     """
     Sends the tarrif information to Tado using its Energy IQ feature.
     """
-
-    valid_from = result["valid_from"][:-10]
-    valid_to = result["valid_to"][:-10]
-    value = result["value_inc_vat"] / 100
     tado = Tado(username, password)
     result = tado.set_eiq_tariff(from_date=valid_from, to_date=valid_to, tariff=value)
     print(result)
@@ -107,10 +123,12 @@ if __name__ == "__main__":
         args.octopus_api_key, args.mprn, args.gas_serial_number
     )
 
-    tarrif = getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
+    #tarrif = getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
 
     # Send the total consumption to Tado
-    send_reading_to_tado(args.tado_email, args.tado_password, consumption)
+    #send_reading_to_tado(args.tado_email, args.tado_password, consumption)
+
+    uploadAllTarrifs(args.octopus_api_key, args.tarrif, args.fulltarrif)
 
     # Send the tarrif to Tado
-    send_tarrif_to_tado(args.tado_email, args.tado_password, tarrif)
+    #send_tarrif_to_tado(args.tado_email, args.tado_password, tarrif["valid_from"][:-10], tarrif["valid_to"][:-10], tarrif["value_inc_vat"])

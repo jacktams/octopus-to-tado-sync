@@ -38,18 +38,22 @@ def uploadAllTarrifs(api_key, tarrif, fullTarrif):
         response = requests.get(
                 url , auth=HTTPBasicAuth(api_key, "")
             )
-    
+        
         if response.status_code == 200:
             meter_readings = response.json()
+
+            print(meter_readings)
+
+            break
             
-            for result in meter_readings['results']:
-                value = result["value_inc_vat"] / 100
-                valid_from = result["valid_from"][:-10]
-                valid_to = result["valid_to"][:-10]
-                
-                send_tarrif_to_tado(args.tado_email, args.tado_password, valid_from, valid_to, value)
-                
-                url = meter_readings.get("next", "")
+            #for result in meter_readings['results']:
+            #    value = result["value_inc_vat"] / 100
+            #    valid_from = result["valid_from"][:-10]
+            #    valid_to = result["valid_to"][:-10]
+            #    
+            #    send_tarrif_to_tado(args.tado_email, args.tado_password, valid_from, valid_to, value)
+            #    
+            #    url = meter_readings.get("next", "")
 
 
 def send_reading_to_tado(username, password, reading):

@@ -31,4 +31,4 @@ jobs:
           --gas-serial-number "${{ secrets.OCTOPUS_GAS_SERIAL }}" \
           --octopus-api-key "${{ secrets.OCTOPUS_API_KEY }}" \
           --tarrif "${{ secrets.TARRIF }}" \
-          --fultarrif "${{ secrets.FULLTARRIF }}"
+          --fulltarrif "${{ secrets.FULLTARRIF }}"

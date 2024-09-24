@@ -41,19 +41,15 @@ def uploadAllTarrifs(api_key, tarrif, fullTarrif):
         
         if response.status_code == 200:
             meter_readings = response.json()
-
-            print(meter_readings)
             
             for result in meter_readings['results']:
-                print(result)
-                break
-            #    value = result["value_inc_vat"] / 100
-            #    valid_from = result["valid_from"][:-10]
-            #    valid_to = result["valid_to"][:-10]
-            #    
-            #    send_tarrif_to_tado(args.tado_email, args.tado_password, valid_from, valid_to, value)
-            #    
-            #    url = meter_readings.get("next", "")
+                value = result["value_inc_vat"] / 100
+                valid_from = result["valid_from"][:-10]
+                valid_to = result["valid_to"][:-10]
+                
+                send_tarrif_to_tado(args.tado_email, args.tado_password, valid_from, valid_to, value)
+                
+            url = meter_readings.get("next", "")
 
 
 def send_reading_to_tado(username, password, reading):
@@ -69,7 +65,7 @@ def send_tarrif_to_tado(username, password, valid_from, valid_to, value):
     Sends the tarrif information to Tado using its Energy IQ feature.
     """
     tado = Tado(username, password)
-    result = tado.set_eiq_tariff(from_date=valid_from, to_date=valid_to, tariff=value)
+    result = tado.set_eiq_tariff(from_date=valid_from, to_date=valid_to, tariff=value, is_period=true)
     print(result)
 
 

@@ -47,8 +47,8 @@ def send_tarrif_to_tado(username, password, result):
     print(f"valid_from is {result["valid_from"]}")
     print(f"valid_to is {result["valid_to"]}")
     tado = Tado(username, password)
-    result = tado.set_eiq_tariff(from_date=result[reading=int(reading))
-    print(result)
+    #result = tado.set_eiq_tariff(from_date=result[reading=int(reading))
+    #print(result)
 
 
 def parse_args():

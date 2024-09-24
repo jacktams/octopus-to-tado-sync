@@ -40,6 +40,16 @@ def send_reading_to_tado(username, password, reading):
     result = tado.set_eiq_meter_readings(reading=int(reading))
     print(result)
 
+def send_tarrif_to_tado(username, password, result):
+    """
+    Sends the tarrif information to Tado using its Energy IQ feature.
+    """
+    print(f"valid_from is {result["valid_from"]}")
+    print(f"valid_to is {result["valid_to"]}")
+    tado = Tado(username, password)
+    result = tado.set_eiq_tariff(from_date=result[reading=int(reading))
+    print(result)
+
 
 def parse_args():
     """
@@ -66,8 +76,8 @@ def parse_args():
 
     return parser.parse_args()
 
-def getCurrentTarrif(api_key):
-    url = f"https://api.octopus.energy/v1/products/SILVER-24-04-03/gas-tariffs/G-1R-SILVER-24-04-03-A/standard-unit-rates/"
+def getCurrentTarrif(api_key, tarrif, fullTarrif):
+    url = f"https://api.octopus.energy/v1/products/{tarrif}/gas-tariffs/{fullTarrif}/standard-unit-rates/"
 
     response = requests.get(
             url + "?group_by=quarter", auth=HTTPBasicAuth(api_key, "")
@@ -79,6 +89,9 @@ def getCurrentTarrif(api_key):
         print(f"Result is {result}")
         value = result["value_inc_vat"]
         print(f"Value is {value}")
+        print(f"valid_from is {result["valid_from"][:-10]}")
+        print(f"valid_to is {result["valid_to"][:-10]}")
+        return result
 
 
 

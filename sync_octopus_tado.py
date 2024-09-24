@@ -73,12 +73,12 @@ def getCurrentTarrif():
             url + "?group_by=quarter", auth=HTTPBasicAuth(api_key, "")
         )
 
-        if response.status_code == 200:
-            meter_readings = response.json()
-            result = meter_readings["results"][0]
-            print(f"Result is {result}")
-            value = result["value_inc_vat"]
-            print(f"Value is {value}")
+    if response.status_code == 200:
+        meter_readings = response.json()
+        result = meter_readings["results"][0]
+        print(f"Result is {result}")
+        value = result["value_inc_vat"]
+        print(f"Value is {value}")
 
 
 

@@ -47,7 +47,7 @@ def send_tarrif_to_tado(username, password, result):
 
     valid_from = result["valid_from"][:-10]
     valid_to = result["valid_to"][:-10]
-    value = result["value_inc_vat"]
+    value = result["value_inc_vat"] / 100
     tado = Tado(username, password)
     result = tado.set_eiq_tariff(from_date=valid_from, to_date=valid_to, tariff=value)
     print(result)

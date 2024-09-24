@@ -58,7 +58,7 @@ def send_reading_to_tado(username, password, reading):
     result = tado.set_eiq_meter_readings(reading=int(reading))
     print(result)
 
-def send_tarrif_to_tado(username, password, valid_from, tarrif):
+def send_tarrif_to_tado(username, password, tarrif):
     """
     Sends the tarrif information to Tado using its Energy IQ feature.
     """

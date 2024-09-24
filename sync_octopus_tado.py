@@ -44,11 +44,13 @@ def send_tarrif_to_tado(username, password, result):
     """
     Sends the tarrif information to Tado using its Energy IQ feature.
     """
-    print(f"valid_from is {result["valid_from"]}")
-    print(f"valid_to is {result["valid_to"]}")
+
+    valid_from = result["valid_from"][:-10]
+    valid_to = result["valid_to"][:-10]
+    value = result["value_inc_vat"]
     tado = Tado(username, password)
-    #result = tado.set_eiq_tariff(from_date=result[reading=int(reading))
-    #print(result)
+    result = tado.set_eiq_tariff(from_date=valid_from, to_date=valid_to, tariff=value)
+    print(result)
 
 
 def parse_args():
@@ -105,7 +107,10 @@ if __name__ == "__main__":
         args.octopus_api_key, args.mprn, args.gas_serial_number
     )
 
-    getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
+    tarrif = getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
 
     # Send the total consumption to Tado
-    #send_reading_to_tado(args.tado_email, args.tado_password, consumption)
+    send_reading_to_tado(args.tado_email, args.tado_password, consumption)
+
+    # Send the tarrif to Tado
+    send_tarrif_to_tado(args.tado_email, args.tado_password, tarrif)

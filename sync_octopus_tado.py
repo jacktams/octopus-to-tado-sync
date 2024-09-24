@@ -105,7 +105,7 @@ if __name__ == "__main__":
         args.octopus_api_key, args.mprn, args.gas_serial_number
     )
 
-    getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fullTarrif)
+    getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
 
     # Send the total consumption to Tado
     #send_reading_to_tado(args.tado_email, args.tado_password, consumption)

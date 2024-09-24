@@ -66,7 +66,7 @@ def parse_args():
 
     return parser.parse_args()
 
-def getCurrentTarrif():
+def getCurrentTarrif(api_key):
     url = f"https://api.octopus.energy/v1/products/SILVER-24-04-03/gas-tariffs/G-1R-SILVER-24-04-03-A/standard-unit-rates/"
 
     response = requests.get(
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         args.octopus_api_key, args.mprn, args.gas_serial_number
     )
 
-    getCurrentTarrif()
+    getCurrentTarrif(args.octopus_api_key)
 
     # Send the total consumption to Tado
     #send_reading_to_tado(args.tado_email, args.tado_password, consumption)

@@ -66,7 +66,7 @@ def send_tarrif_to_tado(username, password, tarrif):
     
     value = tarrif["value_inc_vat"] / 100
     valid_from = tarrif["valid_from"][:-10]
-    valid_to = tarrif["valid_to"][:-10]
+    valid_to = tarrif["valid_from"][:-10]
     
     result = tado.set_eiq_tariff(from_date=valid_from, to_date=valid_to, tariff=value, is_period=True, unit="kWh")
     print(result)
@@ -125,9 +125,9 @@ if __name__ == "__main__":
     # Send the total consumption to Tado
     send_reading_to_tado(args.tado_email, args.tado_password, consumption)
 
-    #uploadAllTarrifs(args.octopus_api_key, args.tarrif, args.fulltarrif)
+    uploadAllTarrifs(args.octopus_api_key, args.tarrif, args.fulltarrif)
 
-    tarrif = getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
+    #tarrif = getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
 
     # Send the tarrif to Tado
-    send_tarrif_to_tado(args.tado_email, args.tado_password, tarrif)
+    #send_tarrif_to_tado(args.tado_email, args.tado_password, tarrif)

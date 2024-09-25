@@ -125,9 +125,9 @@ if __name__ == "__main__":
     # Send the total consumption to Tado
     send_reading_to_tado(args.tado_email, args.tado_password, consumption)
 
-    uploadAllTarrifs(args.octopus_api_key, args.tarrif, args.fulltarrif)
+    #uploadAllTarrifs(args.octopus_api_key, args.tarrif, args.fulltarrif)
 
-    #tarrif = getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
+    tarrif = getCurrentTarrif(args.octopus_api_key, args.tarrif, args.fulltarrif)
 
     # Send the tarrif to Tado
-    #send_tarrif_to_tado(args.tado_email, args.tado_password, tarrif)
+    send_tarrif_to_tado(args.tado_email, args.tado_password, tarrif)

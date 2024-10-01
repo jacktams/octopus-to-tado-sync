@@ -29,7 +29,7 @@ def get_meter_reading_total_consumption(api_key, mprn, gas_serial_number):
             break
 
     print(f"Total consumption is {total_consumption}")
-    return total_consumption
+    return total_consumption * 1.02264 * 39.4 / 3.6
 
 def uploadAllTarrifs(api_key, tarrif, fullTarrif):
     url = f"https://api.octopus.energy/v1/products/{tarrif}/gas-tariffs/{fullTarrif}/standard-unit-rates/"

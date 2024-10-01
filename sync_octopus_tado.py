@@ -9,7 +9,7 @@ def get_meter_reading_total_consumption(api_key, mprn, gas_serial_number):
     Retrieves total gas consumption from the Octopus Energy API for the given gas meter point and serial number.
     """
     url = f"https://api.octopus.energy/v1/gas-meter-points/{mprn}/meters/{gas_serial_number}/consumption/"
-    total_consumption = 2420
+    total_consumption = 0
 
     while url:
         response = requests.get(
@@ -29,7 +29,7 @@ def get_meter_reading_total_consumption(api_key, mprn, gas_serial_number):
             break
 
     print(f"Total consumption is {total_consumption}")
-    return total_consumption * 1.02264 * 39.4 / 3.6
+    return total_consumption
 
 def uploadAllTarrifs(api_key, tarrif, fullTarrif):
     url = f"https://api.octopus.energy/v1/products/{tarrif}/gas-tariffs/{fullTarrif}/standard-unit-rates/"

@@ -31,7 +31,7 @@ def get_meter_reading_total_consumption(api_key, mprn, gas_serial_number):
             break
 
     print(f"Total consumption is {total_consumption}")
-    return total_consumption
+    return total_consumption + 1678
 
 
 async def browser_login(url, username, password):

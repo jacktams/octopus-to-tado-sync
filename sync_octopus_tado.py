@@ -166,12 +166,14 @@ def set_tado_gas_tariff(tado, tariff_info):
         print("No tariff to set")
         return
 
-    unit_rate = tariff_info["unit_rate"]
-    valid_from = tariff_info["valid_from"]
+    unit_rate_pence = tariff_info["unit_rate"]
     valid_to = tariff_info["valid_to"]
 
-    # Parse ISO dates and format as YYYY-MM-DD strings
-    from_date = datetime.fromisoformat(valid_from.replace("Z", "+00:00")).strftime("%Y-%m-%d")
+    # Convert pence to pounds
+    unit_rate_pounds = unit_rate_pence / 100
+
+    # Use today as the start date for the current tariff
+    from_date = datetime.now().strftime("%Y-%m-%d")
     # If valid_to is None (open-ended tariff), use a far future date
     if valid_to:
         to_date = datetime.fromisoformat(valid_to.replace("Z", "+00:00")).strftime("%Y-%m-%d")
@@ -181,11 +183,11 @@ def set_tado_gas_tariff(tado, tariff_info):
     result = tado.set_eiq_tariff(
         from_date=from_date,
         to_date=to_date,
-        tariff=unit_rate,
+        tariff=unit_rate_pounds,
         unit="kWh",
         is_period=True,
     )
-    print(f"Set gas tariff to {unit_rate}p/kWh (from {from_date} to {to_date}): {result}")
+    print(f"Set gas tariff to {unit_rate_pence}p/kWh (£{unit_rate_pounds}/kWh) from {from_date} to {to_date}: {result}")
 
 
 def parse_args():

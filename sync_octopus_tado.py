@@ -7,6 +7,63 @@ from playwright.async_api import async_playwright
 from PyTado.interface import Tado
 
 
+def get_gas_tariff(api_key, account_number):
+    """
+    Retrieves the current gas unit rate from the Octopus Energy API.
+    Returns a dict with unit_rate (pence per kWh), valid_from, and valid_to dates.
+    """
+    # Get account details to find the active gas tariff
+    account_url = f"https://api.octopus.energy/v1/accounts/{account_number}/"
+    response = requests.get(account_url, auth=HTTPBasicAuth(api_key, ""))
+
+    if response.status_code != 200:
+        print(f"Failed to retrieve account data. Status code: {response.status_code}")
+        return None
+
+    account_data = response.json()
+
+    # Find the active gas agreement
+    for property_data in account_data.get("properties", []):
+        for meter_point in property_data.get("gas_meter_points", []):
+            for agreement in meter_point.get("agreements", []):
+                # Check if agreement is current (no end date or end date in future)
+                valid_to = agreement.get("valid_to")
+                valid_from = agreement.get("valid_from")
+                if valid_to is None or valid_to > datetime.now().isoformat():
+                    tariff_code = agreement.get("tariff_code")
+                    if tariff_code:
+                        # Extract product code from tariff code (e.g., "G-1R-VAR-22-11-01-A" -> "VAR-22-11-01")
+                        # Tariff format: G-1R-{PRODUCT_CODE}-{REGION}
+                        parts = tariff_code.split("-")
+                        if len(parts) >= 3:
+                            # Product code is everything between G-1R- and the region letter at the end
+                            product_code = "-".join(parts[2:-1])
+
+                            # Get the unit rates for this tariff
+                            rates_url = f"https://api.octopus.energy/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/"
+                            rates_response = requests.get(rates_url)
+
+                            if rates_response.status_code == 200:
+                                rates_data = rates_response.json()
+                                if rates_data.get("results"):
+                                    # Get the most recent/current rate
+                                    current_rate = rates_data["results"][0]
+                                    unit_rate = current_rate.get("value_inc_vat")
+                                    rate_valid_from = current_rate.get("valid_from")
+                                    rate_valid_to = current_rate.get("valid_to")
+                                    print(f"Current gas unit rate: {unit_rate}p/kWh")
+                                    return {
+                                        "unit_rate": unit_rate,
+                                        "valid_from": rate_valid_from,
+                                        "valid_to": rate_valid_to,
+                                    }
+                            else:
+                                print(f"Failed to retrieve tariff rates. Status code: {rates_response.status_code}")
+
+    print("No active gas tariff found")
+    return None
+
+
 def get_meter_reading_total_consumption(api_key, mprn, gas_serial_number):
     """
     Retrieves total gas consumption from the Octopus Energy API for the given gas meter point and serial number.
@@ -92,15 +149,43 @@ def tado_login(username, password):
     return tado
 
 
-def send_reading_to_tado(username, password, reading):
+def send_reading_to_tado(tado, reading):
     """
     Sends the total consumption reading to Tado using its Energy IQ feature.
     """
-
-    tado = tado_login(username=username, password=password)
-
     result = tado.set_eiq_meter_readings(reading=int(reading))
     print(result)
+
+
+def set_tado_gas_tariff(tado, tariff_info):
+    """
+    Sets the gas tariff in Tado Energy IQ using dates from Octopus API.
+    tariff_info: Dict with unit_rate, valid_from, and valid_to from get_gas_tariff()
+    """
+    if tariff_info is None:
+        print("No tariff to set")
+        return
+
+    unit_rate = tariff_info["unit_rate"]
+    valid_from = tariff_info["valid_from"]
+    valid_to = tariff_info["valid_to"]
+
+    # Parse ISO dates to date objects
+    from_date = datetime.fromisoformat(valid_from.replace("Z", "+00:00")).date()
+    # If valid_to is None (open-ended tariff), use a far future date
+    if valid_to:
+        to_date = datetime.fromisoformat(valid_to.replace("Z", "+00:00")).date()
+    else:
+        to_date = datetime(2099, 12, 31).date()
+
+    result = tado.set_eiq_tariff(
+        from_date=from_date,
+        to_date=to_date,
+        tariff=unit_rate,
+        unit="kWh",
+        is_period=True,
+    )
+    print(f"Set gas tariff to {unit_rate}p/kWh (from {from_date} to {to_date}): {result}")
 
 
 def parse_args():
@@ -125,6 +210,11 @@ def parse_args():
         "--gas-serial-number", required=True, help="Gas meter serial number"
     )
     parser.add_argument("--octopus-api-key", required=True, help="Octopus API key")
+    parser.add_argument(
+        "--octopus-account-number",
+        required=True,
+        help="Octopus account number (e.g., A-1234ABCD)",
+    )
 
     return parser.parse_args()
 
@@ -132,10 +222,19 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
+    # Login to Tado
+    tado = tado_login(args.tado_email, args.tado_password)
+
     # Get total consumption from Octopus Energy API
     consumption = get_meter_reading_total_consumption(
         args.octopus_api_key, args.mprn, args.gas_serial_number
     )
 
     # Send the total consumption to Tado
-    send_reading_to_tado(args.tado_email, args.tado_password, consumption)
+    send_reading_to_tado(tado, consumption)
+
+    # Get current gas tariff from Octopus Energy API
+    tariff_info = get_gas_tariff(args.octopus_api_key, args.octopus_account_number)
+
+    # Set the gas tariff in Tado
+    set_tado_gas_tariff(tado, tariff_info)

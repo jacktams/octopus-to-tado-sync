@@ -170,13 +170,13 @@ def set_tado_gas_tariff(tado, tariff_info):
     valid_from = tariff_info["valid_from"]
     valid_to = tariff_info["valid_to"]
 
-    # Parse ISO dates to date objects
-    from_date = datetime.fromisoformat(valid_from.replace("Z", "+00:00")).date()
+    # Parse ISO dates and format as YYYY-MM-DD strings
+    from_date = datetime.fromisoformat(valid_from.replace("Z", "+00:00")).strftime("%Y-%m-%d")
     # If valid_to is None (open-ended tariff), use a far future date
     if valid_to:
-        to_date = datetime.fromisoformat(valid_to.replace("Z", "+00:00")).date()
+        to_date = datetime.fromisoformat(valid_to.replace("Z", "+00:00")).strftime("%Y-%m-%d")
     else:
-        to_date = datetime(2099, 12, 31).date()
+        to_date = "2099-12-31"
 
     result = tado.set_eiq_tariff(
         from_date=from_date,
